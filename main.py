@@ -6,7 +6,7 @@ from discord import Member
 from discord.ext.commands import has_permissions, MissingPermissions
 from api_repsonce import *
 import datetime
-Bot_Token = "MTIwMzUzOTUwNDA0NTIzMjE3OQ.G-kxrQ.73LvlRBMFqPJK7k-ZyI8DvLNKvnS9WjNybG3no"
+Bot_Token = "MTIwMzUzOTUwNDA0NTIzMjE3OQ.GSHv1J.64kz5fjzszJeQSx-SW4-Iz78IPb4bR6XW3h4Us"
 Channel_ID = 1203764768012243006
 
 client = commands.Bot(command_prefix="!",intents= discord.Intents.all())
