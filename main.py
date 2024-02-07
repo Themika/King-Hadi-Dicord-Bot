@@ -54,7 +54,17 @@ async def scheduleEvents(ctx, date, time):
     else:
         await ctx.send(f"Event scheduled for {event_datetime}.")
 
+@client.event
+async def on_message(message):
+    # Prevent the bot from reacting to its own messages
+    if message.author == client.user:
+        return
 
+    # React with a specific emoji
+    await message.add_reaction("\U0001F44D")  # This will add a thumbs up emoji
+
+    # This line is necessary if you also have commands
+    await client.process_commands(message)
 #Voice Channel Commands
 @client.command(pass_context = True)
 async def join(ctx):
