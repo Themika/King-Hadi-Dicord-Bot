@@ -6,6 +6,7 @@ from discord import Member
 from discord.ext.commands import has_permissions, MissingPermissions
 from api_repsonce import *
 import datetime
+from discord import FFmpegPCMAudio
 Bot_Token = "MTIwMzUzOTUwNDA0NTIzMjE3OQ.GSHv1J.64kz5fjzszJeQSx-SW4-Iz78IPb4bR6XW3h4Us"
 Channel_ID = 1203764768012243006
 
@@ -36,6 +37,13 @@ async def on_member_remove(member):
     channel = client.get_channel(Channel_ID)
     await channel.send("Goodbye.... **never return...**")
 
+@client.command()
+async def ping(ctx):
+    await ctx.send(f"Pong! {round(client.latency * 1000)}ms")
+@client.command(aliases =['Calcultae','CALCULATE','calculate'])
+async def math(ctx,expression):
+    Calculated =  eval(expression)
+    await ctx.send(Calculated)
 
 #
 @client.command(pass_context = True)
@@ -60,8 +68,11 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    # React with a specific emoji
-    await message.add_reaction("\U0001F44D")  # This will add a thumbs up emoji
+    # Don't react to messages that start with "!"
+    if not message.content.startswith('!'):
+        # Check the content of the message and react accordingly
+        if "sad" in message.content.lower():
+            await message.add_reaction("\U0001F622")  # This will add a crying face emoji
 
     # This line is necessary if you also have commands
     await client.process_commands(message)
@@ -75,7 +86,23 @@ async def join(ctx):
     else:
         await ctx.send("You are not in a voice channel. **Be Gone**")
 
+@client.command(pass_context = True)
+async def play(ctx):
+    try:
+        channel = ctx.message.author.voice.channel
+        if ctx.voice_client is not None:
+            await ctx.voice_client.move_to(channel)
+            voice = ctx.voice_client
+        else:
+            voice = await channel.connect()
 
+        if voice.is_playing():
+            voice.stop()
+
+        source = FFmpegPCMAudio('one-night-with-you-background-romantic-music-sax-jazz-for-video-166529.mp3')
+        voice.play(source)
+    except Exception as e:
+        await ctx.send(f"An error occurred: {str(e)}")
 
 #Disabling Voice Channels    
 @client.command(pass_context = True)
