@@ -16,12 +16,7 @@ client = commands.Bot(command_prefix="!",intents= discord.Intents.all())
 async def on_ready():
     print("**BOT IS READY**")
     print("---------------------------------")
-    event_datetime = datetime.datetime.strptime("2022-01-01 12:00", "%Y-%m-%d %H:%M")  # Replace with your desired event date and time
-    current_datetime = datetime.datetime.now()
     
-    if event_datetime <= current_datetime:
-        channel = client.get_channel(Channel_ID)
-        await channel.send("**GET ON**")
 
 @client.command()
 async def hello(ctx):
@@ -51,14 +46,13 @@ async def hadi(ctx):
 async def scheduleEvents(ctx, date, time):
     event_datetime = datetime.datetime.strptime(f"{date} {time}", "%Y-%m-%d %H:%M")
     current_datetime = datetime.datetime.now()
-    
-    if event_datetime < current_datetime:
-        await ctx.send("Invalid date and time. Please provide a future date and time.")
+    print(event_datetime, current_datetime)
+
+    if event_datetime <= current_datetime:
+        channel = client.get_channel(Channel_ID)
+        await channel.send("**GET ON**")
     else:
         await ctx.send(f"Event scheduled for {event_datetime}.")
-
-
-
 
 
 #Voice Channel Commands
@@ -117,7 +111,7 @@ async def quote(ctx):
     await ctx.send(getResponce())
 
 @client.command()
-async def hungry(ctx):
+async def feed_me(ctx):
     await ctx.send(":banana:")  # Replace "emoji_name" and "emoji_id" with your emoji's name and ID
 
 client.run(Bot_Token)
