@@ -12,6 +12,22 @@ Channel_ID = 1203764768012243006
 
 client = commands.Bot(command_prefix="!",intents= discord.Intents.all())
 
+queues = {}
+
+def check_queue(ctx, id):
+    if queues[id] != []:
+        voice = ctx.guild.voice_client
+        source = queues[id].pop(0)
+        voice.play(source, after=lambda x=None: check_queue(ctx, id))  
+
+@client.command()
+async def clearQueue(ctx):
+    guild_id = ctx.message.guild.id
+    if(guild_id in queues):
+        queues[guild_id] = []
+        await ctx.send("Queue has been cleared")
+    else:
+        await ctx.send("There is no queue to clear")
 
 @client.event
 async def on_ready():
@@ -67,14 +83,14 @@ async def on_message(message):
     # Prevent the bot from reacting to its own messages
     if message.author == client.user:
         return
-
     # Don't react to messages that start with "!"
     if not message.content.startswith('!'):
-        # Check the content of the message and react accordingly
-        if "sad" in message.content.lower():
-            await message.add_reaction("\U0001F622")  # This will add a crying face emoji
-
-    # This line is necessary if you also have commands
+        if message.content.lower() == "hey" or message.content.lower() == "hi" or message.content.lower() == "hello" or message.content.lower() == "sup" or message.content.lower() == "yo":
+            await message.add_reaction("\U0001F44B")  # This will add a wave emoji      
+        if message.content.lower() == "bye" or message.content.lower() == "goodbye" or message.content.lower() == "cya":
+            await message.add_reaction("\U0001F44B")
+        if message.content.lower()== "monis":
+            await message.add_reaction("\U0001F435")  # This will add a monkey face emoji
     await client.process_commands(message)
 #Voice Channel Commands
 @client.command(pass_context = True)
@@ -87,33 +103,79 @@ async def join(ctx):
         await ctx.send("You are not in a voice channel. **Be Gone**")
 
 @client.command(pass_context = True)
-async def play(ctx):
+async def play(ctx, arg):
     try:
-        channel = ctx.message.author.voice.channel
-        if ctx.voice_client is not None:
-            await ctx.voice_client.move_to(channel)
-            voice = ctx.voice_client
-        else:
+        voice = ctx.guild.voice_client
+        if voice is None:
+            channel = ctx.message.author.voice.channel
             voice = await channel.connect()
-
-        if voice.is_playing():
-            voice.stop()
-
-        source = FFmpegPCMAudio('one-night-with-you-background-romantic-music-sax-jazz-for-video-166529.mp3')
-        voice.play(source)
+        source = FFmpegPCMAudio('music/' + arg +'.mp3')
+        player = voice.play(source,after=lambda x=None: check_queue(ctx, ctx.message.guild.id)) 
     except Exception as e:
         await ctx.send(f"An error occurred: {str(e)}")
 
-#Disabling Voice Channels    
 @client.command(pass_context = True)
+async def pause(ctx):
+    voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
+    if(voice.is_playing()):
+        voice.pause()
+    else:
+        await ctx.send("I am not playing anything")
+
+@client.command(pass_context = True)
+async def resume(ctx):
+    voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
+    if(voice.is_paused()):
+        voice.resume()
+    else:
+        await ctx.send("I am not playing anything")
+
+@client.command(pass_context = True)
+async def stop(ctx):
+    voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
+    voice.stop()
+
+@client.command(pass_context = True)
+async def volume(ctx, volume: int):
+    voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
+    if(voice.is_playing()):
+        voice.source = discord.PCMVolumeTransformer(voice.source)
+        voice.source.volume = volume / 100
+        await ctx.send(f"Volume has been set to {volume}%")
+    else:
+        await ctx.send("I am not playing anything")
+
+@client.command(pass_context = True)
+async def queue(ctx, arg):
+    voice = ctx.guild.voice_client
+    song = 'music/' + arg +'.mp3'
+    source = FFmpegPCMAudio(song)
+
+    guild_id = ctx.message.guild.id
+
+    if(guild_id in queues):
+        queues[guild_id].append(source)
+    else:
+        queues[guild_id] = [source]
+    await ctx.send(f"{arg} has been added to the queue")
+
+@client.command(pass_context=True)
+async def skip(ctx):
+    voice = ctx.guild.voice_client
+    if voice.is_playing():
+        voice.stop()
+        # If there are more songs in the queue, start playing the next one
+        if queue:
+            source = FFmpegPCMAudio('music/' + queue.pop(0) + '.mp3')
+            voice.play(source)
+
+
 async def leave(ctx):
     if(ctx.voice_client):
         await ctx.guild.voice_client.disconnect()
         await ctx.send("I have left")
     else:
         await ctx.send("I am not in a voice channel")
-
-
 
 
 #kick command
@@ -129,7 +191,6 @@ async def kick_error(ctx, error):
         await ctx.send("You do not have that power to kick. **I AM HADII**")
 
 
-
 #band command
 @client.command()
 @has_permissions(ban_members=True)
@@ -140,7 +201,30 @@ async def ban(ctx, member: discord.Member, *, reason=None):
 async def kick_error(ctx, error):
     if isinstance(error, MissingPermissions):
         await ctx.send("You do not have that power to ban. **I AM HADII**")
+@client.command()
+async def unban(ctx, *, member):    
+    banned_users = await ctx.guild.bans()
+    member_name, member_discriminator = member.split('#')
 
+    for ban_entry in banned_users:
+        user = ban_entry.user
+        if (user.name, user.discriminator) == (member_name, member_discriminator):
+            await ctx.guild.unban(user)
+            await ctx.send(f"{user.mention} has been unbanned")
+            return
+@unban.error
+async def kick_error(ctx, error):
+    if isinstance(error, MissingPermissions):
+        await ctx.send("You do not have that power to unban. **I AM HADII**")
+
+@client.command()
+async def mute (ctx, member: discord.Member):
+    try:
+        role = discord.utils.get(ctx.guild.roles, name="Muted")
+        await member.add_roles(role)
+        await ctx.send(f"{member.mention} has been muted")
+    except Exception as e:
+        await ctx.send(f"An error occurred: {e}")
 
 #Quote Command
 @client.command()
