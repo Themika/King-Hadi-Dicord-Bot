@@ -7,6 +7,9 @@ from discord.ext.commands import has_permissions, MissingPermissions
 from api_repsonce import *
 import datetime
 from discord import FFmpegPCMAudio
+from getMusic import *
+
+
 Bot_Token = "MTIwMzUzOTUwNDA0NTIzMjE3OQ.GSHv1J.64kz5fjzszJeQSx-SW4-Iz78IPb4bR6XW3h4Us"
 Channel_ID = 1203764768012243006
 
@@ -177,6 +180,10 @@ async def leave(ctx):
     else:
         await ctx.send("I am not in a voice channel")
 
+@client.command()
+async def Songs(ctx):
+    music = Get_Music()
+    await ctx.send(music)
 
 #kick command
 @client.command()
