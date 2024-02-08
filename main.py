@@ -218,13 +218,34 @@ async def kick_error(ctx, error):
         await ctx.send("You do not have that power to unban. **I AM HADII**")
 
 @client.command()
-async def mute (ctx, member: discord.Member):
+@has_permissions(manage_messages=True)
+async def mute (ctx, member: discord.Member,*,reason=None):
     try:
-        role = discord.utils.get(ctx.guild.roles, name="Muted")
-        await member.add_roles(role)
+        guild = ctx.guild
+        mutedRole = discord.utils.get(guild.roles, name="Muted")
+
+        if not mutedRole:
+            mutedRole = await guild.create_role(name="Muted")
+
+            for channel in guild.channels:
+                await channel.set_permissions(mutedRole, speak=False, send_messages=False, read_message_history=True, read_messages=False)
+        await member.add_roles(mutedRole, reason=reason)
         await ctx.send(f"{member.mention} has been muted")
+        await member.send(f"You were muted in the server {guild.name} for {reason }")  
     except Exception as e:
         await ctx.send(f"An error occurred: {e}")
+
+@client.command()
+@has_permissions(manage_messages=True)
+async def unmute(ctx, member: discord.Member):
+    try:
+        mutedRole = discord.utils.get(ctx.guild.roles, name="Muted")
+        await member.remove_roles(mutedRole)
+        await ctx.send(f"{member.mention} has been unmuted")
+        await member.send(f"You were unmuted in the server {ctx.guild.name}")
+    except Exception as e:
+        await ctx.send(f"An error occurred: {e}")
+
 
 #Quote Command
 @client.command()
