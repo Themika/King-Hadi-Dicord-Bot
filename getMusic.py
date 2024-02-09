@@ -5,9 +5,8 @@ def Get_Music():
     for root, dirs, files in os.walk('music/'):
         for file in files:
             if file.endswith('.mp3'):
-                x  = file.split('.mp3')
-                music.append(x)
-                print(music)
+                music.append(file[:-4])  # Remove the '.mp3' from the filename
+    print(music)
     return music
 
 
