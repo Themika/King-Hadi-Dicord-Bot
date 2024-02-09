@@ -8,9 +8,12 @@ from api_repsonce import *
 import datetime
 from discord import FFmpegPCMAudio
 from getMusic import *
-# .gitignore file
-from config import *
+from dotenv import load_dotenv
 
+load_dotenv()
+
+Bot_Token= os.getenv("DISCORD_TOKEN")
+Channel_ID= int(os.getenv("CHANNEL_ID"))
 
 client = commands.Bot(command_prefix="!",intents= discord.Intents.all())
 
