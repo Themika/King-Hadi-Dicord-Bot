@@ -11,9 +11,8 @@ from getMusic import *
 from dotenv import load_dotenv
 
 load_dotenv()
-
-Bot_Token= os.getenv("DISCORD_TOKEN")
-Channel_ID= int(os.getenv("CHANNEL_ID"))
+Bot_Token= os.getenv('Bot_Token')
+Channel_ID=os.getenv('Channel_ID')
 
 client = commands.Bot(command_prefix="!",intents= discord.Intents.all())
 
