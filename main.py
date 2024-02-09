@@ -8,6 +8,7 @@ from api_repsonce import *
 import datetime
 from discord import FFmpegPCMAudio
 from getMusic import *
+# .gitignore file
 from config import *
 
 
