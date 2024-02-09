@@ -1,0 +1,4 @@
+
+# .gitignore
+Bot_Token = "MTIwMzUzOTUwNDA0NTIzMjE3OQ.GSHv1J.64kz5fjzszJeQSx-SW4-Iz78IPb4bR6XW3h4Us"
+Channel_ID = 1203764768012243006

@@ -8,10 +8,8 @@ from api_repsonce import *
 import datetime
 from discord import FFmpegPCMAudio
 from getMusic import *
+from config import *
 
-
-Bot_Token = "MTIwMzUzOTUwNDA0NTIzMjE3OQ.GSHv1J.64kz5fjzszJeQSx-SW4-Iz78IPb4bR6XW3h4Us"
-Channel_ID = 1203764768012243006
 
 client = commands.Bot(command_prefix="!",intents= discord.Intents.all())
 
